@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운동량 변화량 계산기 - 최과학~</title>
+    <style>
+        /* 기본 스타일 (라이트 모드) */
+        :root {
+            --bg-color: #f4f7f6;
+            --container-bg-color: #ffffff;
+            --text-color: #333;
+            --header-color: #2c3e50;
+            --label-color: #555;
+            --input-bg-color: #ffffff;
+            --input-text-color: #000000; /* 입력칸 숫자 색 (라이트/다크 동일) */
+            --input-border-color: #ddd;
+            --button-bg-color: #3498db;
+            --button-text-color: #ffffff;
+            --button-hover-bg-color: #2980b9;
+            --result-bg-color: #eaf2f8;
+            --result-text-color: #2c3e50;
+            --error-text-color: #e74c3c;
+            --shadow-color: rgba(0,0,0,0.1);
+            --toggle-bg-color: #7f8c8d;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; 
+            margin: 0; 
+            padding: 20px;
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            display: flex;
+            flex-direction: column; /* 컨텐츠를 세로로 정렬 */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container { 
+            background-color: var(--container-bg-color); 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px var(--shadow-color);
+            width: 100%;
+            max-width: 420px; 
+            text-align: left; 
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        h2 {
+            color: var(--header-color);
+            /* text-align: center; /* 기존 가운데 정렬 대신 flex 사용 */
+            margin-top: 0;
+            margin-bottom: 30px; 
+            font-size: 1.8em; 
+            display: flex; /* Flexbox 레이아웃 사용 */
+            align-items: center; /* 수직 가운데 정렬 */
+            justify-content: center; /* 수평 가운데 정렬 */
+            gap: 0.3em; /* 아이콘과 텍스트 사이 간격 (선택 사항) */
+            flex-wrap: nowrap; /* 줄바꿈 방지 */
+        }
+
+        label { 
+            display: block;
+            margin-bottom: 8px; 
+            font-weight: bold;
+            color: var(--label-color);
+            font-size: 0.95em; 
+        }
+
+        input[type="number"] { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid var(--input-border-color); 
+            border-radius: 6px; 
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: var(--input-bg-color);
+            color: var(--input-text-color); 
+            transition: border-color 0.3s;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--button-bg-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+
+        .calc-button { 
+            width: 100%;
+            padding: 14px 15px; 
+            background-color: var(--button-bg-color); 
+            color: var(--button-text-color); 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 1.15em; 
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px; 
+        }
+        .calc-button:hover { 
+            background-color: var(--button-hover-bg-color); 
+        }
+
+        .results-area {
+            margin-top: 25px;
+        }
+        .result-item {
+            font-weight: bold; 
+            font-size: 1.1em; 
+            color: var(--result-text-color);
+            background-color: var(--result-bg-color);
+            padding: 12px; 
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 10px; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .result-item.error {
+            color: var(--button-text-color); 
+            background-color: var(--error-text-color); 
+        }
+        
+        .dark-mode-toggle {
+            margin-top: 25px;
+            padding: 10px 15px;
+            background-color: var(--toggle-bg-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+            display: block; 
+            width: fit-content; 
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+        .dark-mode-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .footer-brand {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1em;
+            color: var(--label-color);
+            transition: color 0.3s;
+        }
+
+        /* 다크 모드 스타일 */
+        body.dark-mode {
+            --bg-color: #1e272e; 
+            --container-bg-color: #2c3a47; 
+            --text-color: #d0d0d0;
+            --header-color: #ffffff;
+            --label-color: #a0a0a0;
+            --input-border-color: #555;
+            --button-bg-color: #007bff; 
+            --button-hover-bg-color: #0056b3;
+            --result-bg-color: #3b4a58; 
+            --result-text-color: #ffffff;
+            --shadow-color: rgba(255,255,255,0.08);
+            --toggle-bg-color: #57606f;
+        }
+        
+        body.dark-mode input[type="number"] {
+            background-color: #ffffff; 
+            color: #000000; 
+            border-color: #444; 
+        }
+        body.dark-mode input[type="number"]:focus {
+            border-color: var(--button-bg-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        body.dark-mode .result-item.error {
+             background-color: var(--error-text-color); 
+             color: var(--button-text-color); 
+        }
+
+
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .container { padding: 20px; }
+            h2 { 
+                font-size: 1.5em; /* 모바일에서 제목 폰트 약간 줄임 */
+                gap: 0.2em; /* 모바일에서 아이콘 간격 약간 줄임 */
+            }
+            .calc-button { padding: 12px; font-size: 1.1em; }
+            .result-item { font-size: 1em; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 최과학 운동량 변화량 계산기 🚀</h2>
+
+    <div>
+        <label for="mass">질량 (kg):</label>
+        <input type="number" id="mass" placeholder="예: 2" step="any">
+    </div>
+
+    <div>
+        <label for="initialVelocity">처음 속도 (m/s):</label>
+        <input type="number" id="initialVelocity" placeholder="예: 10" step="any">
+    </div>
+
+    <div>
+        <label for="finalVelocity">나중 속도 (m/s):</label>
+        <input type="number" id="finalVelocity" placeholder="예: 20" step="any">
+    </div>
+
+    <button class="calc-button" onclick="calculateValues()">계산하기!</button>
+
+    <div class="results-area">
+        <!-- 결과 표시 순서 변경: 처음 운동량 -> 나중 운동량 -> 운동량 변화량 -->
+        <div id="initialMomentumResult" class="result-item" style="display: none;"></div>
+        <div id="finalMomentumResult" class="result-item" style="display: none;"></div>
+        <div id="deltaPResult" class="result-item" style="display: none;"></div>
+        <div id="errorResult" class="result-item error" style="display: none;"></div>
+    </div>
+    
+    <button id="darkModeToggle" class="dark-mode-toggle">🌙 다크 모드</button>
+</div>
+
+<div class="footer-brand">최과학~</div>
+
+<script>
+    const massInput = document.getElementById("mass");
+    const initialVelocityInput = document.getElementById("initialVelocity");
+    const finalVelocityInput = document.getElementById("finalVelocity");
+    
+    const deltaPResultDiv = document.getElementById("deltaPResult");
+    const initialMomentumResultDiv = document.getElementById("initialMomentumResult");
+    const finalMomentumResultDiv = document.getElementById("finalMomentumResult");
+    const errorResultDiv = document.getElementById("errorResult");
+
+    const darkModeToggleButton = document.getElementById("darkModeToggle");
+
+    // 초기 다크모드 설정 (localStorage 사용)
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        darkModeToggleButton.textContent = '☀️ 라이트 모드';
+    }
+
+    function displayResults(deltaP, pInitial, pFinal) {
+        // 각 결과 div에 해당하는 텍스트를 설정합니다.
+        initialMomentumResultDiv.textContent = `처음 운동량 (pᵢ): ${pInitial.toFixed(2)} kg·m/s`;
+        finalMomentumResultDiv.textContent = `나중 운동량 (pբ): ${pFinal.toFixed(2)} kg·m/s`;
+        deltaPResultDiv.textContent = `운동량 변화량 (Δp): ${deltaP.toFixed(2)} kg·m/s`;
+
+        // 변경된 순서대로 div를 화면에 표시합니다.
+        initialMomentumResultDiv.style.display = 'block';
+        finalMomentumResultDiv.style.display = 'block';
+        deltaPResultDiv.style.display = 'block';
+        errorResultDiv.style.display = 'none'; // 에러 메시지 숨김
+    }
+
+    function displayError(message) {
+        errorResultDiv.textContent = message;
+        errorResultDiv.style.display = 'block';
+
+        // 에러 발생 시 모든 결과 div를 숨깁니다.
+        initialMomentumResultDiv.style.display = 'none';
+        finalMomentumResultDiv.style.display = 'none';
+        deltaPResultDiv.style.display = 'none';
+    }
+
+    function calculateValues() {
+        // 입력값 가져오기
+        const mass = parseFloat(massInput.value);
+        const initialVelocity = parseFloat(initialVelocityInput.value);
+        const finalVelocity = parseFloat(finalVelocityInput.value);
+
+        // 입력 값 유효성 검사
+        if (massInput.value.trim() === '' || initialVelocityInput.value.trim() === '' || finalVelocityInput.value.trim() === '') {
+            displayError("😮 모든 값을 입력해주세요!");
+            return;
+        }
+
+        if (isNaN(mass) || isNaN(initialVelocity) || isNaN(finalVelocity)) {
+            displayError("🔢 숫자만 정확히 입력해주세요!");
+            return;
+        }
+        
+        if (mass <= 0) {
+            displayError("질량은 0보다 커야 합니다.");
+            return;
+        }
+
+        // 계산
+        const initialMomentum = mass * initialVelocity;
+        const finalMomentum = mass * finalVelocity;
+        const deltaP = finalMomentum - initialMomentum;
+
+        // 결과 표시
+        displayResults(deltaP, initialMomentum, finalMomentum);
+    }
+
+    // 다크 모드 토글 기능
+    darkModeToggleButton.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        
+        if (document.body.classList.contains('dark-mode')) {
+            darkModeToggleButton.textContent = '☀️ 라이트 모드';
+            localStorage.setItem('darkMode', 'enabled'); // 다크모드 상태 저장
+        } else {
+            darkModeToggleButton.textContent = '🌙 다크 모드';
+            localStorage.setItem('darkMode', 'disabled'); // 라이트모드 상태 저장
+        }
+    });
+</script>
+
+</body>
+</html>
